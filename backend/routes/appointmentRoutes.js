@@ -2,26 +2,23 @@ const express = require("express");
 const router = express.Router();
 const Appointment = require("../models/Appointment");
 
-// Tüm randevuları getir
+// Randevuları getir (filtreli veya hepsi)
 router.get("/", async (req, res) => {
+  const { patientName } = req.query;
+
   try {
-    const appointments = await Appointment.find().sort({ date: 1 });
+    const query = {};
+    if (patientName) {
+      query.patientName = patientName;
+    }
+
+    const appointments = await Appointment.find(query).sort({ date: 1 });
     res.json(appointments);
   } catch (err) {
     res.status(500).json({ error: "Randevular getirilemedi" });
   }
 });
 
-// Yeni randevu ekle
-router.post("/", async (req, res) => {
-  try {
-    const newAppointment = new Appointment(req.body);
-    await newAppointment.save();
-    res.status(201).json(newAppointment);
-  } catch (err) {
-    res.status(500).json({ error: "Randevu eklenemedi" });
-  }
-});
 
 // Randevu güncelle
 router.put("/:id", async (req, res) => {
